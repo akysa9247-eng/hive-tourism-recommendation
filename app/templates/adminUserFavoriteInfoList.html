@@ -1,0 +1,86 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}
+    用户收藏列表
+{% endblock %}
+
+{% block container %}
+
+    <div class="pagetitle">
+        <h1>用户收藏列表</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">管理员系统</a></li>
+                <li class="breadcrumb-item">用户收藏管理</li>
+                <li class="breadcrumb-item"><a class="active" href="{% url 'adminUserFavoriteInfoList' %}">用户收藏列表</a></li>
+            </ol>
+        </nav>
+    </div>
+
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">用户收藏列表</h5>
+                        <div class="row">
+                            <div class="col-lg-2">
+                                <div class="search-bar">
+                                    <form id="searchForm" class="search-form d-flex align-items-center" method="GET">
+                                        <input style="height: 30px;" type="text" name="search_value" id="searchInput" value="{{ context.search_value }}" placeholder="搜索...">
+                                        <button style="height: 30px;" type="submit" title="Search"><i class="bi bi-search"></i></button>
+                                    </form>
+                                    <div id="search-results"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th scope="col" style="width: 10%;font-size: 20px">#</th>
+                                <th scope="col" style="width: 15%;font-size: 20px">用户名</th>
+                                <th scope="col" style="width: 30%;font-size: 20px">景点名称</th>
+                                <th scope="col" style="width: 25%;font-size: 20px">景点标签</th>
+                                <th scope="col" style="width: 20%;font-size: 20px" class="desc">收藏时间</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in context.query_set %}
+                                <tr>
+                                    <td style="font-size: 18px;">{{ item.favorite.id }}</td>
+                                    <td style="font-size: 18px;">
+                                        {{ item.user.username }}
+                                    </td>
+                                    <td style="font-size: 18px;">
+                                        <a href="{% url 'adminSightDetailInfo' item.sight.sight_id %}" target="_blank" style="font-size: 18px;">
+                                            {{ item.sight.sight_name }}
+                                        </a>
+                                    </td>
+                                    <td style="font-size: 18px;">{{ item.sight.tag_list }}</td>
+                                    <td style="font-size: 18px;">{{ item.favorite.favorited_time | date:"Y-m-d H:i:s" }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="pagination" style="display: inline-block;margin: 20px; width: 800px;">
+                        {{ context.page_string }}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var searchInput = document.getElementById('searchInput');
+            var searchValue = searchInput.value.trim();
+            if (searchValue !== '') {
+                // 若输入了搜索值，则重定向到adminSearchUser
+                window.location.href = `{% url 'adminSearchUserFavoriteByUsername' 'placeholder' %}`.replace('placeholder', encodeURIComponent(searchValue));
+            }else{
+                window.location.href = `{% url 'adminUserFavoriteInfoList' %}`;
+            }
+        });
+    </script>
+{% endblock %}

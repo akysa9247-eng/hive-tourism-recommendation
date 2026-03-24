@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    我的收藏
+{% endblock %}
+
+{% block container %}
+    <div class="pagetitle" style="display: flex; align-items: center">
+        <div style="margin-right: auto">
+            <h1>收藏列表</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">主页 </a></li>
+                    <li class="breadcrumb-item">我的信息</li>
+                    <li class="breadcrumb-item active">收藏列表</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <section class="section dashboard">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">收藏列表</h5>
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th style="width: 8%" scope="col">#</th>
+                                <th style="width: 10%" scope="col">景点名称</th>
+                                <th style="width: 8%" scope="col">城市</th>
+                                <th style="width: 8%" scope="col">点评数量</th>
+                                <th style="width: 7%" scope="col">评分</th>
+                                <th style="width: 7%" scope="col">热度</th>
+                                <th style="width: 8%" scope="col">等级</th>
+                                <th style="width: 15%" scope="col">标签</th>
+                                <th style="width: 20%" scope="col">封面</th>
+                                <th style="width: 9%;text-align: center" scope="col">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in context.query_set %}
+                                <tr>
+                                    <th scope="row">
+                                        <a href="{% url 'sightDetailInfo' item.sight.sight_id %}" target="_blank" style="font-size: 15px;">#{{ item.sight.sight_id }}</a>
+                                    </th>
+                                    <td>
+                                        <a href="{% url 'sightDetailInfo' item.sight.sight_id %}" target="_blank" style="font-size: 18px;">{{ item.sight.sight_name }}</a>
+                                    </td>
+                                    <td>{{ item.sight.province }}·{{ item.sight.city }}</td>
+                                    <td>{{ item.sight.comments_count }}</td>
+                                    <td><span class="badge bg-primary" style="font-size: 15px;">{{ item.sight.score }}分</span></td>
+                                    <td><span class="badge bg-danger" style="font-size: 15px;">{{ item.sight.heat_score }}</span></td>
+                                    <td>{{ item.sight.level }}</td>
+                                    <td>{{ item.sight.tag_list }}</td>
+                                    <td>
+                                        <a href="{% url 'sightDetailInfo' item.sight.sight_id %}" target="_blank">
+                                            <img src="{{ item.sight.cover }}" style="width: 100%" alt="">
+                                        </a>
+                                    </td>
+                                    <td style="text-align: center;width: 70px">
+                                        <div style="margin-bottom: 10px">
+                                            <a href="{% url 'sightDetailInfo' item.sight.sight_id %}" target="_blank" class="btn btn-info">详情页面</a>
+                                        </div>
+                                        <div style="margin-bottom: 10px">
+                                            <a href="{% url 'addComment' item.sight.sight_id %}" target="_blank" class="btn btn-success">添加评论</a>
+                                        </div>
+                                        <div style="margin-bottom: 10px">
+                                            <a href="javascript:void(0);" class="btn btn-warning favorite-a" data-action="unfavorite" data-sight-id="{{ item.sight.sight_id }}" onclick="if(confirm('您确定要取消收藏吗？')) cancelFavorite('{{ item.sight.sight_id }}');">取消收藏</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="pagination" style="display: inline-block;margin: 20px; width: 800px;">
+                        {{ context.page_string }}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function cancelFavorite(sightId) {
+            // 发起请求 取消收藏
+            $.ajax({
+                type: 'POST',
+                url: '{% url "cancelUserFavorite" 0 %}'.replace('0', sightId),
+                success: function(response) {
+                    if (response.success) {
+                        window.location.href = '{% url "userFavoriteInfo" %}';
+                    } else {
+                        alert('取消收藏失败: ' + response.error);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX error: " + error);
+                    alert('请求失败，请稍后再试。');
+                }
+            });
+        }
+    </script>
+{% endblock %}
+

@@ -1,0 +1,89 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}
+    景点详情页
+{% endblock %}
+
+{% block container %}
+    <div class="pagetitle" style="display: flex; align-items: center">
+        <div style="margin-right: auto">
+            <h1>景点详情页</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">主页 </a></li>
+                    <li class="breadcrumb-item">景点信息管理 </li>
+                    <li class="breadcrumb-item"><a href="{% url 'adminSightInfoList' %}">景点信息列表</a></li>
+                    <li class="breadcrumb-item active">景点详情页</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <section class="section dashboard">
+        <div class="row">
+            <div class="col-lg-12"  style="height: auto;overflow: auto;">
+                <div class="card mb-3">
+                    <div class="row g-0" style="margin: 20px">
+                        <div class="col-md-4">
+                            <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    {% for img in img_list %}
+                                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                            <img src="{{ img }}" class="d-block w-100" alt="...">
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <div style="font-size: 25px; display: flex; justify-content: space-between; align-items: baseline;">
+                                    <span style="font-weight: bold">{{ sight_info.sight_name }}</span>
+                                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="" data-bs-original-title="热度" style="font-size: 18px">
+                                        <i class="ri-fire-fill"></i>
+                                        {{ sight_info.heat_score }}
+                                    </button>
+                                </div>
+                                <div style="display: flex;align-items: baseline; margin-top: 10px">
+                                    <p style="font-size: 26px;color: #2681ff;line-height: 26px;font-weight: bold;">
+                                        {{ sight_info.score }}<span style="font-size: 14px;color: #666;line-height: 18px;">/5分</span>
+                                    </p>
+                                </div>
+                                <div class="row" style="margin-top: 10px">
+                                    <div class="col-md-2 label" style="font-size: 15px;font-weight: bold;">地址</div>
+                                    <div class="col-md-10" style="font-size: 15px">{{ sight_info.address }}</div>
+                                </div>
+                                <div class="row" style="margin-top: 10px">
+                                    <div class="col-md-2 label" style="font-size: 15px;font-weight: bold;">开放时间</div>
+                                    <div class="col-md-10" style="font-size: 15px">{{ sight_info.opening_time }}</div>
+                                </div>
+                                <div class="row" style="margin-top: 10px">
+                                    <div class="col-md-2 label" style="font-size: 15px;font-weight: bold;">官方电话</div>
+                                    <div class="col-md-10" style="font-size: 15px">
+                                        {% if sight_info.telephone %}
+                                            {{ sight_info.telephone }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top: 10px">
+                                    <div class="col-md-2 label" style="font-size: 15px;font-weight: bold;">介绍</div>
+                                    <p class="card-text" style="margin-top: 10px">{{ intro }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

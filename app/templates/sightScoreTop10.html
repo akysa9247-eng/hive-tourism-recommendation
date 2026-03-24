@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    景点评分前十
+{% endblock %}
+
+{% block container %}
+
+    <div class="pagetitle" style="display: flex; align-items: center">
+        <div style="margin-right: auto">
+            <h1>景点评分前十</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">主页 </a></li>
+                    <li class="breadcrumb-item">景点数据可视化</li>
+                    <li class="breadcrumb-item active">景点评分前十 </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <section class="section dashboard">
+        <div class="row" id="boardRow" style="min-height: 1500px;height: auto;overflow: auto;">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">景点数据列表</h5>
+                        <form id="Form-main" class="row g-3" style="margin-bottom: 10px" method="GET" action="{% url 'getSightScoreTop10' %}">
+                            {% csrf_token %}
+                            <div class="col-md-2" style="width: 150px; margin-bottom: 10px">
+                                <select class="form-select" name="province" id="province">
+                                    <option selected="" value="{{ province }}">选择省份</option>
+                                    {% for province in provinces %}
+                                        <option value="{{ province }}">{{ province }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2" style="width: 150px; margin-bottom: 10px">
+                                <select class="form-select" name="city" id="city" disabled>
+                                    <option selected="" disabled value="{{ province }}">选择城市</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2" style="width: 150px; margin-bottom: 10px">
+                                <button id="submitBtn" type="submit" class="btn btn-default btn-outline-primary" >提交</button>
+                            </div>
+                        </form>
+
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th style="width: 9%" scope="col">#</th>
+                                <th style="width: 12%" scope="col">景点名称</th>
+                                <th style="width: 10%" scope="col">城市</th>
+                                <th style="width: 8%" scope="col">评分</th>
+                                <th style="width: 8%" scope="col">热度</th>
+                                <th style="width: 9%" scope="col">等级</th>
+                                <th style="width: 15%" scope="col">标签</th>
+                                <th style="width: 20%" scope="col">封面</th>
+                            </tr>
+                            </thead>
+                            <tbody id="sight-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="pagination" style="display: inline-block;margin: 20px; width: 800px;">
+                        {{ context.page_string }}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block echarts %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#province').change(function() {
+                var selectedProvince = $(this).val();
+                if (selectedProvince) {
+                    // 启用城市下拉框
+                    $('#city').prop('disabled', false);
+                    // 清空城市下拉框的选项
+                    $('#city').empty();
+                    // 添加一个默认的“选择城市”选项
+                    $('#city').append($('<option></option>').attr('value', '').text('选择城市'));
+
+                    $.ajax({
+                        url: '/app/getCitiesByProvince',
+                        type: 'GET',
+                        data: {
+                            'province': selectedProvince
+                        },
+                        success: function(data) {
+                            // 将请求返回的城市列表的应用到下拉框
+                            $.each(data, function(index, city) {
+                                $('#city').append($('<option></option>').attr('value', city).text(city));
+                            });
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.log('Error fetching cities: ' + textStatus);
+                        }
+                    });
+                } else {
+                    // 如果没有选择省份，则禁用城市下拉框
+                    $('#city').prop('disabled', true);
+                    // 清空城市下拉框的选项
+                    $('#city').empty();
+                    // 添加一个默认的“选择城市”选项
+                    $('#city').append($('<option></option>').attr('value', '').text('选择城市'));
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#submitBtn').click(function(e) {
+                e.preventDefault();
+                var province = $('#province').val();
+                var city = $('#city').val();
+                $.ajax({
+                    url: '/app/getSightScoreTop10',
+                    type: 'GET',
+                    data: {
+                        'province': province,
+                        'city': city
+                    },
+                    success: function(data) {
+                        var tbody = $('#sight-table-body');
+                        tbody.empty(); // 清空当前表格内容
+                        $.each(data, function(index, sight) {
+                            var sightDetailInfoUrl = '/app/sightDetailInfo/' + sight.sight_id;
+                            var newRow = $('<tr></tr>');
+                            newRow.append('<th style="width: 9%;"><a href="' + sightDetailInfoUrl + '" target="_blank" style="font-size: 15px;">#' + sight.sight_id + '</a></th>');
+                            newRow.append('<td style="width: 12%;"><a href="' + sightDetailInfoUrl + '" target="_blank" style="font-size: 18px;">' + sight.sight_name + '</a></td>');
+                            newRow.append('<td style="width: 10%;font-size: 18px;">' + sight.province + '·' + sight.city + '</td>');
+                            newRow.append('<td style="width: 8%;"><span class="badge bg-primary"  style="font-size: 15px;">' + sight.score + '分</span></td>'); // 评分
+                            newRow.append('<td style="width: 8%;"><span class="badge bg-danger"  style="font-size: 15px;">' + sight.heat_score + '</span></td>'); // 热度
+                            newRow.append('<td style="width: 8%;">' + sight.level + '</td>');
+                            newRow.append('<td style="width: 16%;">' + sight.tag_list + '</td>');
+                            newRow.append('<td style="width: 20%;"><a href="' + sightDetailInfoUrl + '" target="_blank"><img src="' + sight.cover + '" style="width: 100%" alt=""></a></td>'); // 封面
+                            tbody.append(newRow);
+                        });
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('Error fetching data: ' + textStatus, errorThrown);
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

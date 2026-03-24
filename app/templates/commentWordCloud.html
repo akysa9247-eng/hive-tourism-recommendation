@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    用户评论词云图
+{% endblock %}
+
+{% block container %}
+    <div class="pagetitle" style="display: flex; align-items: center">
+        <div style="margin-right: auto">
+            <h1>用户评论词云图</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">主页 </a></li>
+                    <li class="breadcrumb-item">评论数据可视化</li>
+                    <li class="breadcrumb-item active">用户评论词云图</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <section class="section dashboard">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+
+                    <div class="card-body">
+                        <h5 class="card-title">用户评论词云图</h5>
+                        <div id="mains" style="text-align: center">
+                            <img src="/static/wordcloud/commentCloud/comment_cloud.png">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
+
+{% block echarts %}
+
+{% endblock %}

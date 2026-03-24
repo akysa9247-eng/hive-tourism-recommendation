@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    景点详情页
+{% endblock %}
+
+{% block container %}
+    <div class="pagetitle" style="display: flex; align-items: center">
+        <div style="margin-right: auto">
+            <h1>景点详情页</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">主页 </a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'sightDataList' %}">景点列表 </a></li>
+                    <li class="breadcrumb-item active">景点详情页</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <section class="section dashboard">
+        <div class="row">
+            <div class="col-lg-12"  style="height: auto;overflow: auto;">
+                <div class="card mb-3">
+                    <div class="row g-0" style="margin: 20px">
+                        <div class="col-md-4">
+                            <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    {% for img in img_list %}
+                                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                            <img src="{{ img }}" class="d-block w-100" alt="...">
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <div style="font-size: 25px; display: flex; justify-content: space-between; align-items: baseline;">
+                                    <span style="font-weight: bold">{{ sight_info.sight_name }}</span>
+                                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="" data-bs-original-title="热度" style="font-size: 18px">
+                                        <i class="ri-fire-fill"></i>
+                                        {{ sight_info.heat_score }}
+                                    </button>
+                                </div>
+                                <div style="display: flex;align-items: baseline; margin-top: 10px">
+                                    <p style="font-size: 26px;color: #2681ff;line-height: 26px;font-weight: bold;">
+                                        {{ sight_info.score }}<span style="font-size: 14px;color: #666;line-height: 18px;">/5分</span>
+                                    </p>
+                                    <span id="commentsCount" style="color: blue;text-decoration: underline;cursor: pointer;margin-left: 20px;">
+                                        {{ comments_count }}条点评>
+                                    </span>
+                                    <span style="color: blue; text-decoration: underline; cursor: pointer; margin-left: 20px" id="favoriteSpan">
+                                        {% if is_favorited %}
+                                            <button type="button" class="btn btn-outline-primary favorite-btn" data-action="unfavorite">取消收藏</button>
+                                        {% else %}
+                                            <button type="button" class="btn btn-outline-primary favorite-btn" data-action="favorite">收藏景点</button>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div class="row" style="margin-top: 10px">
+                                    <div class="col-md-2 label" style="font-size: 15px;font-weight: bold;">地址</div>
+                                    <div class="col-md-10" style="font-size: 15px">{{ sight_info.address }}</div>
+                                </div>
+                                <div class="row" style="margin-top: 10px">
+                                    <div class="col-md-2 label" style="font-size: 15px;font-weight: bold;">开放时间</div>
+                                    <div class="col-md-10" style="font-size: 15px">{{ sight_info.opening_time }}</div>
+                                </div>
+                                <div class="row" style="margin-top: 10px">
+                                    <div class="col-md-2 label" style="font-size: 15px;font-weight: bold;">官方电话</div>
+                                    <div class="col-md-10" style="font-size: 15px">
+                                        {% if sight_info.telephone %}
+                                            {{ sight_info.telephone }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top: 10px">
+                                    <div class="col-md-2 label" style="font-size: 15px;font-weight: bold;">介绍</div>
+                                    <p class="card-text" style="margin-top: 10px">{{ intro }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="commentsSection" class="row">
+            <div  class="col-lg-8">
+                <div class="card">
+                    <div class="card-body" style=" display: flex;justify-content: space-between;align-items: center;">
+                        <h5 class="card-title">用户点评({{ comments_count }})</h5>
+                        <a href="{% url 'addComment' sight_id %}" target="_blank" style="font-size: 18px">写评论<i class="bi bi-pencil-square"></i></a>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for item in context.query_set %}
+                            <li class="list-group-item" style="margin-bottom: 20px">
+                                <div class="row g-0">
+                                    <div class="col-md-2">
+                                        <a class="align-items-center" style="width: 10px;height: 10px">
+                                            <img src="/media/{{ item.user.avatar }}" alt="Profile" class="rounded-circle" style="width: 50px;height: 50px">
+                                            <span class="ps-2">{{ item.user.username }}</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="col-sm-10 star-container">
+                                            {% for i in "12345" %}
+                                                <div class="star {% if i|add:0 <= item.comment.score %}checked{% endif %}">★</div>
+                                            {% endfor %}
+                                        </div>
+                                        <p class="card-text">{{ item.comment.content }}</p>
+                                        <small class="text-muted">{{ item.comment.date | date:"Y-m-d H:i:s" }}</small>
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <ul class="pagination" style="display: inline-block;margin: 20px; width: 800px;">
+                        {{ context.page_string }}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">猜你喜欢</h5>
+                        <div class="activity">
+                            {% for sight in guess_user_likes %}
+                                <div class="activity-item d-flex" style="margin-bottom: 5px">
+                                    <a href="{% url 'sightDetailInfo' sight.sight_id %}" target="_blank">
+                                        <img style="width: 100px;height:62px;object-fit:cover;margin-right: 5px;" src="{{ sight.img_list | first }}" alt="">
+                                    </a>
+                                    <div class="activite-label" style="font-size: 15px;margin-left: 5px;color: blue;">
+                                        <a href="{% url 'sightDetailInfo' sight.sight_id %}" target="_blank">
+                                            {{ sight.sight_name }}
+                                        </a>
+                                    </div>
+                                    <i class="bi bi-circle-fill activity-badge text-danger align-self-start"></i>
+                                    <div class="activity-content" style="font-size: 15px;">
+                                        {{ sight.city }} <a style="font-size:15px;margin-left: 5px;color: orange!important;" class="fw-bold text-dark">{{ sight.score }}分</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </section>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取触发滚动的span元素
+            var scrollTrigger = document.getElementById('commentsCount');
+            // 获取目标div元素
+            var commentsSection = document.getElementById('commentsSection');
+
+            // 为触发元素添加点击事件监听器
+            scrollTrigger.addEventListener('click', function() {
+                // 使用scrollIntoView方法平滑滚动到目标位置
+                commentsSection.scrollIntoView({
+                    behavior: 'smooth' // 平滑滚动效果
+                });
+            });
+        });
+    </script>
+    <script>
+        var favoriteUrl = '{% url 'userFavoriteSight' sight_id %}'; // Django初次渲染时提供的URL
+        var unfavoriteUrl = '{% url 'cancelUserFavorite' sight_id %}'; // Django初次渲染时提供的URL
+        $
+        $('#favoriteSpan').on('click', '.favorite-btn', function(e){
+            e.preventDefault(); // 阻止默认的表单提交行为或其他默认行为
+
+            var action = $(this).data('action'); // 获取按钮的data-action属性
+            var url;
+
+            if (action === 'favorite') {
+                // 用户点击了“收藏景点”按钮
+                url = favoriteUrl;
+            } else if (action === 'unfavorite') {
+                // 用户点击了“取消收藏”按钮
+                url = unfavoriteUrl;
+            }
+
+            var $button = $(this);
+
+            $.ajax({
+                type: 'POST',
+                url: url,
+                success: function(response){
+                    // 根据响应更新button的内容
+                    if (response.is_favorited) {
+                        // 服务器返回已收藏状态，显示“取消收藏”按钮
+                        $button.text('取消收藏').data('action', 'unfavorite');
+                    } else {
+                        // 服务器返回未收藏状态，显示“收藏景点”按钮
+                        $button.text('收藏景点').data('action', 'favorite');
+                    }
+                },
+                error: function(xhr, status, error){
+                    console.error("AJAX error: " + error);
+                }
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'base_login.html' %}
+{% block title %}
+    管理员登录
+{% endblock %}
+{% block  content %}
+    <div class="card-body" style="width: 420px">
+        <ul class="nav nav-tabs nav-tabs-bordered d-flex" id="borderedTabJustified" role="tablist" style="margin: 30px">
+            <li class="nav-item flex-fill" role="presentation">
+                <button class="nav-link w-100 user-login-btn" type="button" role="tab">用户登录</button>
+            </li>
+            <li class="nav-item flex-fill" role="presentation">
+                <button class="nav-link w-100 admin-login-btn active" type="button" role="tab">管理员登录</button>
+            </li>
+        </ul>
+        <form method="POST" action="{% url 'adminLogin' %}" class="row g-3 needs-validation" novalidate>
+            <div class="col-12">
+                <label for="adminname" class="form-label">用户名</label>
+                <div class="input-group has-validation">
+                    <input type="text" name="adminname" class="form-control" id="adminname" required>
+                    <div class="invalid-feedback">请输入您的用户名!</div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <label for="password" class="form-label">密码</label>
+                <input type="password" name="password" class="form-control" id="password" required>
+                <div class="invalid-feedback">请输入您的密码!</div>
+            </div>
+
+            <div class="col-12" id="submitDiv">
+                <button class="btn btn-primary w-100" type="submit">提交</button>
+            </div>
+            <div class="col-12" id="submitDiv">
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block AjaxScript %}
+    <script>
+        $(document).ready(function() {
+            $('form').on('submit', function(event) {
+                event.preventDefault();
+
+                var adminname = $('#adminname').val();
+                var password = $('#password').val();
+                if (adminname === '' || password === '') {  // 未填写则不发送ajax请求
+                    return;
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "adminLogin" %}',
+                    data: {
+                        'adminname': adminname,
+                        'password': password
+                    },
+                    success: function(response) {
+                        if (response.error) {
+                            showErrorAlert(response.error);
+                        } else {
+                            // 响应成功，跳转到首页
+                            window.location.href = '{% url 'adminHome' %}';
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("An error occurred: " + status + "\nError: " + error);
+                    }
+                });
+            });
+
+            function showErrorAlert(message) {
+                $('.alert.alert-danger').remove();
+                // 创建提示框，并显示错误信息
+                var alertHtml = `
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-octagon me-1"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+                $('#submitDiv').before(alertHtml);
+            }
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,217 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}
+    修改景点信息
+{% endblock %}
+
+{% block container %}
+    <div class="pagetitle" style="display: flex; align-items: center">
+        <div style="margin-right: auto">
+            <h1>修改景点信息</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">管理员系统 </li>
+                    <li class="breadcrumb-item">景点信息管理 </li>
+                    <li class="breadcrumb-item"><a href="{% url 'adminSightInfoList' %}">景点信息列表 </a></li>
+                    <li class="breadcrumb-item active">修改景点信息</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <section class="section dashboard">
+        <div class="row">
+
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">修改景点信息</h5>
+                        <div class="activity">
+                            <form class="row g-3 needs-validation" action="{% url 'adminUpdateSightInfo' sight_id %}" method="POST" enctype="multipart/form-data" novalidate="">
+                                <div class="col-12">
+                                    <label for="inputText" class="form-label">景点名称</label>
+                                    <input type="text" id="sight_name" name="sight_name" value="{{ sightInfo.sight_name }}" class="form-control">
+                                </div>
+
+                                <div class="col-md-2" style="width: 200px">
+                                    <select class="form-select" name="province" id="province" required>
+                                        <option selected="">{{ sightInfo.province }}</option>
+                                        {% for province in provinces %}
+                                            <option value="{{province }}">{{ province }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="col-md-2" style="width: 200px">
+                                    <select class="form-select" name="city" id="city" required>
+                                        <option selected="" value="" disabled>{{ sightInfo.city }}</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="inputText" class="form-label">地址</label>
+                                    <input type="text" id="address" name="address" value="{{ sightInfo.address }}" class="form-control">
+                                </div>
+
+                                <div class="col-md-2" style="width: 200px">
+                                    <label for="inputText" class="form-label">等级</label>
+                                    <select class="form-select" id="level" name="level">
+                                        <option {% if sightInfo.level == "未评级" %}
+                                            selected
+                                        {% endif %} value="未评级">未评级</option>
+                                        <option {% if sightInfo.level == "5A" %}
+                                            selected
+                                        {% endif %} value="5A">5A</option>
+                                        <option {% if sightInfo.level == "4A" %}
+                                            selected
+                                        {% endif %} value="4A">4A</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="inputText" class="form-label">评分</label>
+                                    <input type="number" id="score" name="score" value="{{ sightInfo.score }}" placeholder="{{ sightInfo.score }}" class="form-control">
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="inputText" class="form-label">热度</label>
+                                    <input type="number" id="heat_score" name="heat_score" value="{{ sightInfo.heat_score }}" placeholder="{{ sightInfo.heat_score }}" class="form-control">
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="inputText" class="form-label">标签列表</label>
+                                    <input type="text" id="tag_list" name="tag_list" value="{{ sightInfo.tag_list }}" placeholder="{{ sightInfo.tag_list }}" class="form-control">
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="inputText" class="form-label">官方电话</label>
+                                    <input type="text" id="telephone" name="telephone" value="{{ sightInfo.telephone }}" placeholder="{{ sightInfo.telephone }}" class="form-control">
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="inputText" class="form-label">介绍</label>
+                                    <textarea name="intro" id="intro" class="form-control" placeholder="{{ sightInfo.intro }}" style="height: 100px"></textarea>
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="inputText" class="form-label">开放时间</label>
+                                    <input id="opening_time" name="opening_time" class="form-control" value="{{ sightInfo.opening_time }}" placeholder="{{ sightInfo.opening_time }}">
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="inputText" class="form-label">封面</label>
+                                    <br>
+                                    <input class="form-control" id="cover" type="file" name="cover">
+                                </div>
+                                <div class="col-12" style="margin-bottom: 20px">
+                                    <label for="inputText" class="form-label">图片</label>
+                                    <br>
+                                    <input class="form-control" id="img_list" type="file" name="img_list" multiple>
+                                </div>
+
+                                <div class="text-center" id="submitDiv">
+                                    <button type="submit" class="btn btn-primary">提交</button>
+                                    <a href="{% url 'adminUpdateSightInfo' sight_id %}" class="btn btn-success">刷新</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block ajaxRequest %}
+    <script>
+        $(document).ready(function() {
+            var defaultProvince = '{{ sightInfo.province }}';
+            var defaultCity = '{{ sightInfo.city }}';
+
+            loadCitiesByProvince(defaultProvince);
+
+            function loadCitiesByProvince(selectedProvince) {
+                if (selectedProvince) {
+                    $.ajax({
+                        url: '/app/getCitiesByProvince',
+                        type: 'GET', /
+                        data: {
+                            'province': selectedProvince
+                        },
+                        success: function(data) {
+                            $('#city').empty(); // 清空原有的选项
+                            $.each(data, function(index, city) {
+                                var option = $('<option></option>').attr('value', city).text(city);
+                                if (city === defaultCity) {
+                                    option.prop('selected', true);
+                                }
+                                $('#city').append(option);
+                            });
+                            // 启用城市下拉框
+                            $('#city').prop('disabled', false);
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.log('Error fetching cities: ' + textStatus);
+                        }
+                    });
+                } else {
+                    // 如果没有选择省份，则禁用城市下拉框
+                    $('#city').prop('disabled', true);
+                    // 清空城市下拉框的选项
+                    $('#city').empty();
+                    // 添加一个默认的“选择城市”选项
+                    $('#city').append($('<option></option>').attr('value', '').text('选择城市'));
+                }
+            }
+
+            $('#province').change(function() {
+                var selectedProvince = $(this).val();
+                loadCitiesByProvince(selectedProvince);
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('form').on('submit', function(event) {
+                event.preventDefault(); // 阻止表单默认提交行为
+
+                var formData = new FormData(this);
+
+                $.ajax({
+                    type: 'POST',
+                    url: {% url 'adminUpdateSightInfo' sight_id %},
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    cache: false,
+                    success: function(response) {
+                        if (response.error) {
+                            showErrorAlert(response.error);
+                        } else {
+                            window.location.href = '{% url 'adminSightInfoList' %}';
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("An error occurred: " + status + "\nError: " + error);
+                    }
+                });
+            });
+
+            function showErrorAlert(message) {
+                $('#alert-danger').remove();
+
+                // 创建提示框并显示错误信息
+                var alertHtml = `
+                <div class="row mb-3" id="alert-danger">
+                    <div class="alert alert-danger alert-dismissible fade show form-control" role="alert">
+                        <i class="bi bi-exclamation-octagon me-1"></i>
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+                $('#submitDiv').before(alertHtml);
+            }
+        });
+    </script>
+{% endblock %}
+

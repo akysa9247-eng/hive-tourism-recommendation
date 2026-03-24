@@ -1,0 +1,101 @@
+{% extends 'base_login.html' %}
+
+{% block title %}
+    注册
+{% endblock %}
+
+{% block content %}
+    <div class="card mb-3">
+        <div class="card-body" style="width: 450px">
+            <div class="pt-4 pb-2">
+                <h5 class="card-title text-center pb-0 fs-4">注册账号</h5>
+            </div>
+            <form method="POST" action="{% url 'register' %}" class="row g-3 needs-validation" novalidate="">
+                <div class="col-12">
+                    <label for="yourName" class="form-label">用户名</label>
+                    <input type="text" name="username" class="form-control" id="username" required="">
+                    <div class="invalid-feedback">请输入用户名!</div>
+                </div>
+
+                <div class="col-12">
+                    <label for="yourPassword" class="form-label">密码</label>
+                    <input type="password" name="password" class="form-control" id="password" required="">
+                    <div class="invalid-feedback">请输入密码!</div>
+                </div>
+                <div class="col-12">
+                    <label for="confirmPassword" class="form-label">确认密码</label>
+                    <input type="password" name="confirmPassword" class="form-control" id="confirmPassword" required="">
+                    <div class="invalid-feedback">请再次输入密码!</div>
+                </div>
+                <div class="col-12" id="submitDiv">
+                    <button class="btn btn-primary w-100" type="submit">提交</button>
+                </div>
+                <div class="col-12">
+                    <p class="small mb-0">已有账号? <a href="{% url 'login' %}">登录</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block AjaxScript %}
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+    <script src="/static/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/vendor/chart.js/chart.min.js"></script>
+    <script src="/static/vendor/echarts/echarts.min.js"></script>
+    <script src="/static/vendor/quill/quill.min.js"></script>
+    <script src="/static/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="/static/vendor/tinymce/tinymce.min.js"></script>
+    <script src="/static/vendor/php-email-form/validate.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('form').on('submit', function(event) {
+                event.preventDefault();  // 阻止表单默认提交行为
+
+                var username = $('#username').val();
+                var password = $('#password').val();
+                var confirmPassword = $('#confirmPassword').val();
+                if (username === '' || password === '' || confirmPassword === '') {
+                    // 未填写则不发送ajax请求
+                    return;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "register" %}',
+                    data: {
+                        'username': username,
+                        'password': password,
+                        'confirm_password': confirmPassword
+                    },
+                    success: function(response) {
+                        if (response.error) {
+                            showErrorAlert(response.error);
+                        } else {
+                            window.location.href = '{% url 'login' %}';
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("An error occurred: " + status + "\nError: " + error);
+                    }
+                });
+            });
+
+            function showErrorAlert(message) {
+                $('.alert.alert-danger').remove(); //清空之前的提示框
+                // 创建提示框并显示错误信息
+                var alertHtml = `
+                    <div class="alert alert-danger alert-dismissible fade show col-12" role="alert">
+                        <i class="bi bi-exclamation-octagon me-1"></i>
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                $('#submitDiv').before(alertHtml); //显示在提交按钮前
+            }
+        });
+    </script>
+{% endblock %}

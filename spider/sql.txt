@@ -1,0 +1,804 @@
+==== ADS.sql ====
+create database if not exists travel_db_ads;
+use travel_db_ads;
+
+show databases;
+show tables;
+
+-- 1.景点数量统计表
+drop table if exists travel_db_ads.ads_sight_count_stats;
+create external table travel_db_ads.ads_sight_count_stats(
+    `dt` string COMMENT '统计日期',
+    total_sight_count bigint comment "景点个数",
+    total_sight_count_5a bigint comment "5a级景点个数",
+    total_sight_count_4a bigint comment "4a级景点个数"
+) comment '景点数量统计表'
+    row format delimited fields terminated by '\t'
+    location '/travel_db/ads/ads_sight_count_stats';
+
+-- 2.各省份（景点）信息统计
+drop table if exists travel_db_ads.ads_province_stats;
+create external table travel_db_ads.ads_province_stats(
+    `dt` string COMMENT '统计日期',
+    province string comment "省份",
+    heat_score bigint comment "省份热度",
+    sight_count bigint comment "景点个数",
+    sight_count_5a bigint comment "5a级景点个数",
+    sight_count_4a bigint comment "4a级景点个数"
+) comment '各省份景点信息统计'
+    row format delimited fields terminated by '\t'
+    location '/travel_db/ads/ads_province_stats';
+
+-- 3.各城市（景点）信息统计
+drop table if exists travel_db_ads.ads_city_stats;
+create external table travel_db_ads.ads_city_stats(
+    `dt` string COMMENT '统计日期',
+    province string comment "省份",
+    city string comment "城市",
+    heat_score bigint comment "城市热度",
+    sight_count bigint comment "景点个数",
+    sight_count_5a bigint comment "5a级景点个数",
+    sight_count_4a bigint comment "4a级景点个数"
+) comment '各城市景点信息统计'
+    row format delimited fields terminated by '\t'
+    location '/travel_db/ads/ads_city_stats';
+
+-- 4.景点热度top10
+drop table if exists travel_db_ads.ads_sight_heat_score_top_10_stats;
+create external table travel_db_ads.ads_sight_heat_score_top_10_stats(
+    `dt` string COMMENT '统计日期',
+    sight_id bigint comment "景点id",
+    sight_name string comment "景点名称",
+    province string comment "省份",
+    city string comment "城市",
+    tag_list string comment '标签列表',
+    detail_url string comment "详情页网址",
+    level string comment "景点等级",
+    heat_score decimal(10,2) comment "景点热度",
+    score decimal(10,2) comment "评分",
+    comments_count bigint comment "点评数量",
+    address string comment "地址",
+    telephone string comment "官方电话",
+    intro string comment "介绍",
+    opening_time string comment "开放时间",
+    img_list string comment "图片列表",
+    cover string comment "封面"
+) comment '景点热度top10'
+    row format delimited fields terminated by '\t'
+    location '/travel_db/ads/ads_sight_heat_score_top_10_stats';
+
+-- 5.景点评分top10
+drop table if exists travel_db_ads.ads_sight_score_top_10_stats;
+create external table travel_db_ads.ads_sight_score_top_10_stats(
+    `dt` string COMMENT '统计日期',
+    sight_id bigint comment "景点id",
+    sight_name string comment "景点名称",
+    province string comment "省份",
+    city string comment "城市",
+    tag_list string comment '标签列表',
+    detail_url string comment "详情页网址",
+    level string comment "景点等级",
+    heat_score decimal(10,2) comment "景点热度",
+    score decimal(10,2) comment "评分",
+    comments_count bigint comment "点评数量",
+    address string comment "地址",
+    telephone string comment "官方电话",
+    intro string comment "介绍",
+    opening_time string comment "开放时间",
+    img_list string comment "图片列表",
+    cover string comment "封面"
+) comment '景点评分top10'
+    row format delimited fields terminated by '\t'
+    location '/travel_db/ads/ads_sight_score_top_10_stats';
+
+-- 6.景点评分占比  (5分制)  0-3分  3-3.5分  3.5-4分  4-4.5分  4.5-5分
+drop table if exists travel_db_ads.ads_sight_score_rate;
+create external table travel_db_ads.ads_sight_score_rate(
+    `dt` string COMMENT '统计日期',
+    province string comment "省份",
+    city string comment "城市",
+    sight_count bigint comment "景点个数",
+    score_count_4_5_to_5 bigint comment "4.5-5分景点个数",
+    score_count_4_to_4_5 bigint comment "4-4.5分景点个数",
+    score_count_3_5_to_4 bigint comment "3.5-4分景点个数",
+    score_count_3_to_3_5 bigint comment "3-3.5分景点个数",
+    score_count_0_to_3 bigint comment "0-3分景点个数"
+) comment '各城市景点评分占比统计'
+    row format delimited fields terminated by '\t'
+    location '/travel_db/ads/ads_sight_score_rate';
+
+-- 7.景点热度占比  (10分制)   0-6分  6-7分  7-8分  8-9分  9-10分
+drop table if exists travel_db_ads.ads_sight_heat_score_rate;
+create external table travel_db_ads.ads_sight_heat_score_rate(
+    `dt` string COMMENT '统计日期',
+    province string comment "省份",
+    city string comment "城市",
+    sight_count bigint comment "景点个数",
+    heat_score_9_to_10 bigint comment "9-10分景点个数",
+    heat_score_8_to_9 bigint comment "8-9分景点个数",
+    heat_score_7_to_8 bigint comment "7-8分景点个数",
+    heat_score_6_to_7 bigint comment "6-7分景点个数",
+    heat_score_0_to_6 bigint comment "0-6分景点个数"
+) comment '各城市景点热度占比统计'
+    row format delimited fields terminated by '\t'
+    location '/travel_db/ads/ads_sight_heat_score_rate';
+
+-- 8.用户评分占比  (5分制)   1分  2分  3分  4分  5分
+drop table if exists travel_db_ads.ads_comment_sight_score_rate;
+create external table travel_db_ads.ads_comment_sight_score_rate(
+    `dt` string COMMENT '统计日期',
+    province string comment "省份",
+    city string comment "城市",
+    score_count bigint comment "评论个数",
+    comment_score_count_5 bigint comment "5分评论个数",
+    comment_score_count_4 bigint comment "4分评论个数",
+    comment_score_count_3 bigint comment "3分评论个数",
+    comment_score_count_2 bigint comment "2分评论个数",
+    comment_score_count_1 bigint comment "1分评论个数"
+) comment '用户评分占比统计'
+    row format delimited fields terminated by '\t'
+    location '/travel_db/ads/ads_comment_sight_score_rate';
+
+
+==== ADS装载语句.sql ====
+-- 初始化设置
+
+-- 1.景点数量统计表
+insert overwrite table travel_db_ads.ads_sight_count_stats
+select
+    `current_date`(),
+    sum(sight_count) as total_sight_count, -- 统计景点总数
+    sum(sight_count_5a) as total_sight_count_5a, -- 统计5a级景点个数
+    sum(sight_count_4a) as total_sight_count_4a -- 统计4a级景点个数
+from
+    travel_db_dws.dws_province_sight_a_stats;
+
+-- 2.各省份景点信息统计
+insert overwrite table travel_db_ads.ads_province_stats
+select
+    `current_date`(),
+    psa.province,
+    phs.province_heat_score,
+    sum(psa.sight_count) as total_sight_count, -- 统计景点总数
+    sum(psa.sight_count_5a) as total_sight_count_5a, -- 统计5a级景点个数
+    sum(psa.sight_count_4a) as total_sight_count_4a -- 统计4a级景点个数
+from
+    travel_db_dws.dws_province_sight_a_stats as psa
+left join
+    travel_db_dws.dws_province_heat_score as phs
+on
+    psa.province = phs.province
+group by
+    psa.province,
+    phs.province_heat_score;
+
+-- 3.各城市景点信息统计
+insert overwrite table travel_db_ads.ads_city_stats
+select
+    `current_date`(),
+    csa.province,
+    csa.city,
+    chs.city_heat_score,
+    csa.sight_count,
+    csa.sight_count_5a,
+    csa.sight_count_4a
+from
+    travel_db_dws.dws_city_sight_a_stats csa
+left join
+    travel_db_dws.dws_city_heat_score chs
+on
+    csa.city = chs.city;
+
+-- 4.景点热度top10
+select count(1) from travel_db_ads.ads_sight_heat_score_top_10_stats;
+insert overwrite table travel_db_ads.ads_sight_heat_score_top_10_stats
+SELECT
+    `current_date`(),
+    sight_id,
+    sight_name,
+    province,
+    city,
+    tag_list,
+    detail_url,
+    level,
+    heat_score,
+    score,
+    comments_count,
+    address,
+    telephone,
+    intro,
+    opening_time,
+    img_list,
+    cover
+FROM (
+    SELECT
+        sight_id,
+        sight_name,
+        province,
+        city,
+        tag_list,
+        detail_url,
+        level,
+        heat_score,
+        score,
+        comments_count,
+        address,
+        telephone,
+        intro,
+        opening_time,
+        img_list,
+        cover,
+        ROW_NUMBER() OVER (PARTITION BY province, city ORDER BY heat_score DESC, score DESC) AS rank
+    FROM
+        travel_db_dwd.dwd_travel_sight_info
+) t
+WHERE
+    t.rank <= 10;
+
+-- 5.景点评分top10
+insert overwrite table travel_db_ads.ads_sight_score_top_10_stats
+SELECT
+    `current_date`(),
+    sight_id,
+    sight_name,
+    province,
+    city,
+    tag_list,
+    detail_url,
+    level,
+    heat_score,
+    score,
+    comments_count,
+    address,
+    telephone,
+    intro,
+    opening_time,
+    img_list,
+    cover
+FROM (
+    SELECT
+        sight_id,
+        sight_name,
+        province,
+        city,
+        tag_list,
+        detail_url,
+        level,
+        heat_score,
+        score,
+        comments_count,
+        address,
+        telephone,
+        intro,
+        opening_time,
+        img_list,
+        cover,
+        ROW_NUMBER() OVER (PARTITION BY province, city ORDER BY score DESC, comments_count DESC) AS rank
+    FROM
+        travel_db_dwd.dwd_travel_sight_info
+) t
+WHERE
+    t.rank <= 10;
+
+-- select * from travel_db_dwd.dwd_travel_sight_info where sight_name = '故宫博物院';
+
+-- 6.各城市景点评分占比统计  (5分制)  0-3分  3-3.5分  3.5-4分  4-4.5分  4.5-5分
+insert overwrite table travel_db_ads.ads_sight_score_rate
+select
+    `current_date`(),
+    province,
+    city,
+    count(1) as sight_count,
+    sum(case when score >= 4.5 and score <= 5 then 1 else 0 end) as comment_score_count_4_5_to_5,
+    sum(case when score >= 4 and score < 4.5 then 1 else 0 end) as comment_score_count_4_to_4_5,
+    sum(case when score >= 3.5 and score < 4 then 1 else 0 end) as comment_score_3_5_to_4,
+    sum(case when score >= 3 and score < 3.5 then 1 else 0 end) as comment_score_3_to_3_5,
+    sum(case when score >= 0 and score < 3 then 1 else 0 end) as comment_score_0_to_3
+from
+    travel_db_dwd.dwd_travel_sight_info
+group by
+    province,
+    city;
+
+-- select * from travel_db_dwd.dwd_travel_sight_info where province='上海' and comment_score >= 4.5 and comment_score <= 5;
+
+-- 7.各城市景点热度占比统计  (10分制)   0-6分  6-7分  7-8分  8-9分  9-10分
+insert overwrite table travel_db_ads.ads_sight_heat_score_rate
+select
+    `current_date`(),
+    province,
+    city,
+    count(1) as sight_count,
+    sum(case when heat_score >= 9 and heat_score <= 10 then 1 else 0 end) as count_9_to_10,
+    sum(case when heat_score >= 8 and heat_score < 9 then 1 else 0 end) as count_8_to_9,
+    sum(case when heat_score >= 7 and heat_score < 8 then 1 else 0 end) as count_7_to_8,
+    sum(case when heat_score >= 6 and heat_score < 7 then 1 else 0 end) as count_6_to_7,
+    sum(case when heat_score >= 0 and heat_score < 6 then 1 else 0 end) as count_0_to_6
+from
+    travel_db_dwd.dwd_travel_sight_info
+group by
+    province,
+    city;
+
+-- select * from travel_db_ads.ads_city_sight_heat_score_rate;
+
+-- select * from travel_db_dwd.dwd_travel_sight_info where province = '上海' and heat_score >=9 and comment_score <= 10;
+
+-- 8.用户评分占比统计  (5分制)   1分  2分  3分  4分  5分
+insert overwrite table travel_db_ads.ads_comment_sight_score_rate
+select
+    `current_date`(),
+    tsi.province,
+    tsi.city,
+    count(1) as score_count,
+    sum(case when tci.score == 5 then 1 else 0 end) as score_count_5,
+    sum(case when tci.score == 4 then 1 else 0 end) as score_count_4,
+    sum(case when tci.score == 3 then 1 else 0 end) as score_count_3,
+    sum(case when tci.score == 2 then 1 else 0 end) as score_count_2,
+    sum(case when tci.score == 1 then 1 else 0 end) as score_count_1
+from
+    travel_db_dwd.dwd_travel_comment_info  as tci
+left join travel_db_dwd.dwd_travel_sight_info  as tsi
+    on tci.sight_id = tsi.sight_id and tsi.province is not null
+group by
+    tsi.province,
+    tsi.city;
+
+-- select * from travel_db_ads.ads_comment_sight_score_rate;
+
+
+==== console.sql ====
+drop table test;
+create table test(
+    dt STRING,
+    a STRING
+);
+
+insert into test (dt, a)
+values ('2015-10-16', '2');
+
+insert into test (dt, a)
+values ('2024-10-13', '0');
+
+insert into test (dt, a)
+values ('2024-1-12', '2.5');
+
+insert into test (dt, a)
+values ('2023-1-12', '0.1');
+
+select * from test where dt >= add_months(trunc(current_date(),'YY'),-12);
+select * from test where a > 0;
+select add_months(trunc(current_date(),'YY'),-12);
+
+==== DWD.sql ====
+create database if not exists travel_db_dwd;
+
+drop database travel_db_dwd;
+
+use travel_db_dwd;
+
+-- 1.景点信息事实表
+drop table travel_db_dwd.dwd_travel_sight_info;
+create external table travel_db_dwd.dwd_travel_sight_info(
+    sight_id bigint comment "景点id",
+    sight_name string comment "景点名称",
+    province string comment "省份",
+    city string comment "城市",
+    tag_list string comment "标签列表",
+    level string comment "景点等级",
+    heat_score decimal(10,2) comment "景点热度",
+    score decimal(10,2) comment "评分",
+    comments_count bigint comment "点评数量",
+    address string comment "地址",
+    telephone string comment "官方电话",
+    intro string comment "介绍",
+    opening_time string comment "开放时间",
+    img_list string comment "图片列表",
+    cover string comment "封面"
+) comment '景点信息表'
+    stored as orc
+    location '/travel_db/dwd/dwd_travel_sight_info'
+    tblproperties('orc.compress' = 'snappy');
+
+
+create external table travel_db_dwd.dwd_travel_sight_info(
+    `sight_id` bigint comment "景点id",
+    `sight_name` string comment "景点名称",
+    `tag_list` string comment "标签列表",
+    `level` string comment "景点等级",
+    `heat_score` decimal(10,2) comment "景点热度",
+    `score` decimal(10,2) comment "评分",
+    `comments_count` bigint comment "点评数量",
+    `address` string comment "地址",
+    `telephone` string comment "官方电话",
+    `intro` string comment "介绍",
+    `opening_time` string comment "开放时间",
+    `img_list` string comment "图片列表",
+    `cover` string comment "封面"
+) comment '景点信息表'
+    partitioned by (`province` string comment "省份", `city` string comment "城市")
+    stored as orc
+    location '/travel_db/dwd/dwd_travel_sight_info'
+    tblproperties('orc.compress' = 'snappy');
+
+select count(1) from dwd_travel_sight_info group by province, city;
+
+-- 2.评论信息事实表
+drop table if exists travel_db_dwd.dwd_travel_comment_info;
+create external table travel_db_dwd.dwd_travel_comment_info(
+    comment_id bigint comment "评论id",
+    user_name string comment "用户名",
+    sight_id bigint comment "景点id",
+    content string comment "评论内容",
+    score decimal(10,2) comment "评分"
+) comment '评论信息表'
+    partitioned by (comment_date string comment '评论日期')
+    stored as orc
+    location '/travel_db/dwd/dwd_travel_comment_info/'
+    tblproperties('orc.compress' = 'snappy');
+
+select count(1) from travel_db_dwd.dwd_travel_comment_info;
+
+-- 3.评论信息事实表_inflct
+drop table if exists travel_db_dwd.dwd_travel_comment_info_mapping;
+create external table travel_db_dwd.dwd_travel_comment_info_mapping(
+    comment_id bigint comment "评论id",
+    user_name string comment "用户名",
+    sight_id bigint comment "景点id",
+    content string comment "评论内容",
+    score decimal(10,2) comment "评分",
+    comment_date string comment '评论日期'
+) comment '评论信息表'
+    row format delimited fields terminated by '\t'
+    location '/travel_db/dwd/dwd_travel_comment_info_mapping/'
+
+
+
+
+
+==== DWD装载语句.sql ====
+
+-- 初始化设置
+set hive.exec.dynamic.partition=true;	//开启动态分区功能（默认true，开启）
+set hive.exec.dynamic.partition.mode=nonstrict;	//设置为非严格模式（动态分区的模式，默认strict，表示必须指定至少一个分区为静态分区，nonstrict模式表示允许所有的分区字段都可以使用动态分区。）
+set hive.exec.max.dynamic.partitions.pernode=10000;
+set hive.exec.max.dynamic.partitions=10000;
+set hive.exec.max.created.files=10000;
+
+-- 1.景点信息事实表
+insert overwrite table travel_db_dwd.dwd_travel_sight_info partition (province, city)
+select
+    sight_id,
+    sight_name,
+    tag_list,
+    detail_url,
+    level,
+    heat_score,
+    score,
+    comments_count,
+    address,
+    telephone,
+    intro,
+    opening_time,
+    img_list,
+    cover,
+    province,
+    city
+from (select
+          sight_id,
+          sight_name,
+          province,
+          city,
+          detail_url,
+          level,
+          heat_score,
+          score,
+          comments_count,
+          address,
+          telephone,
+          intro,
+          opening_time,
+          img_list,
+          cover,
+          row_number() over (partition by sight_id order by sight_id desc) rank
+      from travel_db_ods.ods_travel_sight_info) as t
+where t.rank=1
+    and t.heat_score > 0
+    and t.score > 0
+    and t.comments_count >= 30;
+
+insert overwrite table travel_db_dwd.dwd_travel_sight_info
+select
+    sight_id,
+    sight_name,
+    province,
+    city,
+    tag_list,
+    detail_url,
+    level,
+    heat_score,
+    score,
+    comments_count,
+    address,
+    telephone,
+    intro,
+    opening_time,
+    img_list,
+    cover
+from (select
+          sight_id,
+          sight_name,
+          province,
+          city,
+          tag_list,
+          detail_url,
+          level,
+          heat_score,
+          score,
+          comments_count,
+          address,
+          telephone,
+          intro,
+          opening_time,
+          img_list,
+          cover,
+          row_number() over (partition by sight_id order by sight_id desc) rank
+      from travel_db_ods.ods_travel_sight_info) as t
+where t.rank=1
+    and t.heat_score > 0
+    and t.score > 0
+    and t.comments_count >= 30;
+
+select * from travel_db_dwd.dwd_travel_sight_info where province = '台湾' limit 10;
+
+-- 2.评论信息事实表
+insert overwrite table travel_db_dwd.dwd_travel_comment_info partition (comment_date)
+select
+    comment_id,
+    user_name,
+    sight_id,
+    content,
+    score,
+    comment_date
+from
+    (select
+        comment_id,
+        user_name,
+        sight_id,
+        content,
+        score,
+        comment_date,
+        row_number() over (partition by user_name,sight_id,comment_date order by comment_date desc) rank
+    from
+        travel_db_ods.ods_travel_comment_info
+    where
+        comment_id > 0
+    ) as t
+where t.rank=1
+    and t.score > 0
+    and to_date(t.comment_date) >=  '2018-01-01';
+
+insert overwrite table travel_db_dwd.dwd_travel_comment_info_mapping
+select
+    comment_id,
+    user_name,
+    sight_id,
+    content,
+    score,
+    comment_date
+from
+    (select
+        comment_id,
+        user_name,
+        sight_id,
+        content,
+        score,
+        comment_date,
+        row_number() over (partition by user_name,sight_id,comment_date order by comment_date desc) rank
+    from
+        travel_db_ods.ods_travel_comment_info
+    where
+        comment_id > 0
+    ) as t
+where t.rank=1
+    and t.score > 0
+    and to_date(t.comment_date) >=  '2018-01-01';
+
+
+select add_months(trunc(current_date(),'YY'),-24);
+
+
+select count(1) from travel_db_dwd.dwd_travel_comment_info_mapping;
+
+==== DWS.sql ====
+drop database if exists travel_db_dws;
+create database if not exists travel_db_dws;
+
+show create database travel_db_dws;
+
+use travel_db_dws;
+
+show databases;
+show tables;
+
+-- 1.各城市热度表
+drop table if exists travel_db_dws.dws_city_heat_score;
+create external table travel_db_dws.dws_city_heat_score(
+    province string comment "省份",
+    city string comment "城市",
+    city_heat_score bigint comment "城市热度"
+) comment '各城市热度表'
+    stored as orc
+    location '/travel_db/dws/dws_city_heat_score'
+    tblproperties('orc.compress' = 'snappy');
+
+-- 2.各省份热度表
+drop table travel_db_dws.dws_province_heat_score;
+create external table travel_db_dws.dws_province_heat_score(
+    province string comment "省份",
+    province_heat_score bigint comment "省份热度"
+) comment '各省份热度表'
+    stored as orc
+    location '/travel_db/dws/dws_province_heat_score'
+tblproperties('orc.compress' = 'snappy');
+
+-- 3.各城市A级景区信息表
+drop table travel_db_dws.dws_city_sight_a_stats;
+create external table travel_db_dws.dws_city_sight_a_stats(
+    province string comment "省份",
+    city string comment "城市",
+    sight_count bigint comment "景点个数",
+    sight_count_5a bigint comment "5a级景点个数",
+    sight_count_4a bigint comment "4a级景点个数"
+) comment '各城市A级景区信息表'
+    stored as orc
+    location '/travel_db/dws/dws_city_sight_a_stats/'
+    tblproperties('orc.compress' = 'snappy');
+
+-- 4.各省份A级景区信息表
+drop table travel_db_dws.dws_province_sight_a_stats;
+create external table travel_db_dws.dws_province_sight_a_stats(
+    province string comment "省份",
+    sight_count bigint comment "景点个数",
+    sight_count_5a bigint comment "5a级景点个数",
+    sight_count_4a bigint comment "4a级景点个数"
+  ) comment '各省份A级景区信息表'
+    row format delimited fields terminated by '\t'
+    location '/travel_db/dws/dws_province_sight_a_stats';
+
+
+==== DWS装载语句.sql ====
+
+-- 1.各城市热度表
+insert overwrite table travel_db_dws.dws_city_heat_score
+select
+    t.province,
+    t.city,
+    cast(round(avg(t.heat_score) * 1000) as bigint)
+from
+    (
+        select
+            province,
+            city,
+            heat_score,
+            row_number() over (partition by city order by heat_score desc) as rank
+        from
+            travel_db_dwd.dwd_travel_sight_info
+    ) as t
+where t.rank <= 20
+group by
+    t.province,
+    t.city;
+
+-- select * from travel_db_dws.dws_city_heat_score;
+
+-- 2.各省份热度表
+insert overwrite table travel_db_dws.dws_province_heat_score
+select
+    t.province,
+    cast(round(avg(t.city_heat_score))  as bigint) as avg_top_10_heat_score
+from
+    (
+        select
+            province,
+            city_heat_score,
+            row_number() over (partition by province order by city_heat_score desc) as rank
+        from
+            travel_db_dws.dws_city_heat_score
+    ) as t
+where
+    t.rank <= 5
+group by
+    t.province;
+
+-- select * from travel_db_dws.dws_province_heat_score;
+
+-- 3.各城市a级景区信息表
+insert overwrite table travel_db_dws.dws_city_sight_a_stats
+select
+    province,
+    city,
+    count(1) as sight_count, -- 统计景点总数
+    sum(case when level = '5A' then 1 else 0 end) as sight_5a_count, -- 统计5a级景点个数
+    sum(case when level = '4A' then 1 else 0 end) as sight_4a_count -- 统计4a级景点个数
+from
+    travel_db_dwd.dwd_travel_sight_info
+group by
+    province,
+    city;
+
+
+-- select * from travel_db_dws.dws_city_sight_a_stats;
+
+-- 4.各省份a级景区信息表
+insert overwrite table travel_db_dws.dws_province_sight_a_stats
+select
+    province,
+    cast(sum(sight_count) as bigint) as sight_count, -- 统计景点总数
+    cast(sum(sight_count_5a) as bigint) as sight_5a_count,  -- 统计5a级景点个数
+    cast(sum(sight_count_4a) as bigint) as sight_4a_count   -- 统计4a级景点个数
+from
+    travel_db_dws.dws_city_sight_a_stats
+group by
+    province;
+
+-- select * from travel_db_dws.dws_province_sight_a_stats;
+
+==== ODS.sql ====
+create database if not exists travel_db_ods;
+
+use travel_db_ods;
+
+show databases;
+show tables;
+
+-- 1.景点信息表
+drop table if exists travel_db_ods.ods_travel_sight_info;
+create external table travel_db_ods.ods_travel_sight_info(
+    sight_id bigint comment "景点id",
+    sight_name string comment "景点名称",
+    province string comment "省份",
+    city string comment "城市",
+    tag_list string comment "标签列表",
+    detail_url string comment "详情页网址",
+    level string comment "景点等级",
+    heat_score decimal(10,2) comment "景点热度",
+    score decimal(10,2) comment "评分",
+    comments_count bigint comment "点评数量",
+    address string comment "地址",
+    telephone string comment "官方电话",
+    intro string comment "介绍",
+    opening_time string comment "开放时间",
+    img_list string comment "图片列表",
+    cover string comment "封面"
+) comment '景点信息表'
+    row format serde 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+    stored as textfile
+	location '/travel_db/ods/ods_travel_sight_info/'
+    tblproperties ('skip.header.line.count'='1');
+
+select count(1) from ods_travel_sight_info;
+select count(1) from ods_travel_sight_info group by province, city;
+-- 2.景点评论信息表
+drop table if exists travel_db_ods.ods_travel_comment_info;
+create external table travel_db_ods.ods_travel_comment_info(
+    comment_id bigint comment "评论id",
+    user_name string comment "用户名",
+    sight_id bigint comment "景点id",
+    content string comment "评论内容",
+    score decimal(10,2) comment "评分",
+    comment_date string comment '评论日期'
+) comment '评论信息表'
+    row format serde 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+    stored as textfile
+	location '/travel_db/ods/ods_travel_comment_info/'
+    tblproperties ('skip.header.line.count'='1');
+
+select count(1) from travel_db_ods.ods_travel_sight_info;
+
+
+select count(1) from travel_db_ods.ods_travel_comment_info;
+
+select count(1) from travel_db_ods.ods_travel_comment_info as t where t.comment_date < '2023-01-01';
+
+

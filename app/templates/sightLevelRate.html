@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    景点等级占比
+{% endblock %}
+
+{% block container %}
+    <div class="pagetitle" style="display: flex; align-items: center">
+        <div style="margin-right: auto">
+            <h1>景点等级占比</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">主页 </a></li>
+                    <li class="breadcrumb-item">景点数据可视化</li>
+                    <li class="breadcrumb-item active">景点等级占比 </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <section class="section dashboard">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">景点等级占比</h5>
+                        <form id="Form-main" class="row g-3" method="POST" action="{% url 'commentScoreRate' %}">
+                            {% csrf_token %}
+                            <div class="col-md-2" style="width: 150px; margin-bottom: 10px">
+                                <select class="form-select" name="province" id="province">
+                                    <option selected="" value="{{ province }}">选择省份</option>
+                                    {% for province in provinces %}
+                                        <option value="{{ province }}">{{ province }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-2" style="width: 150px; margin-bottom: 10px">
+                                <select class="form-select" name="city" id="city" disabled>
+                                    <option selected="" disabled value="{{ city }}">选择城市</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-2" style="width: 150px; margin-bottom: 10px">
+                                <button id="submitBtn" type="submit" class="btn btn-default btn-outline-primary" >提交</button>
+                            </div>
+                        </form>
+                        <div id="mains" style="width: 100%;height: 500px;align-items: center"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
+
+{% block echarts %}
+    <script>
+        $(document).ready(function() {
+            $('#province').change(function() {
+                var selectedProvince = $(this).val();
+                if (selectedProvince) {
+                    // 启用城市下拉框
+                    $('#city').prop('disabled', false);
+                    // 清空城市下拉框的选项
+                    $('#city').empty();
+                    // 添加一个默认的“选择城市”选项
+                    $('#city').append($('<option></option>').attr('value', '').text('选择城市'));
+                    $.ajax({
+                        url: '/app/getCitiesByProvince',
+                        type: 'GET',
+                        data: {
+                            'province': selectedProvince
+                        },
+                        success: function(data) {
+                            $.each(data, function(index, city) {
+                                $('#city').append($('<option></option>').attr('value', city).text(city));
+                            });
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.log('Error fetching cities: ' + textStatus);
+                        }
+                    });
+                } else {
+                    // 如果没有选择省份，则禁用城市下拉框
+                    $('#city').prop('disabled', true);
+                    // 清空城市下拉框的选项
+                    $('#city').empty();
+                    // 添加默认的“选择城市”选项
+                    $('#city').append($('<option></option>').attr('value', '').text('选择城市'));
+                }
+            });
+        });
+    </script>
+    <script>
+        var chartDom = document.getElementById('mains');
+        var myChart = echarts.init(chartDom);
+        var option;
+        option = {
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                top: '5%',
+                left: 'center'
+            },
+            series: [
+                {
+                    name: '景点等级占比',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: {
+                        borderRadius: 10,
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    },
+                    label: {
+                        show: false,
+                        position: 'center'
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            fontSize: 40,
+                            fontWeight: 'bold'
+                        }
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    data: ''
+                }
+            ]
+        };
+        myChart.setOption(option);
+    </script>
+
+    <script>
+        var chartDom = document.getElementById('mains');
+        var myChart = echarts.init(chartDom);
+        var option;
+        option && myChart.setOption(option);
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#submitBtn').click(function(e) {
+                e.preventDefault(); // 阻止表单默认提交行为
+                var province = $('#province').val();
+                var city = $('#city').val();
+
+                $.ajax({
+                    url: '/app/getSightLevelRate',
+                    type: 'GET',
+                    data: {
+                        'province': province,
+                        'city': city
+                    },
+                    success: function(data) {
+                        const formatter = (data) => {
+                            return `${data.name}: ${data.value}`;
+                        };
+                        // 使用返回的数据更新图表
+                        var option = {
+                            tooltip: {
+                                trigger: 'item'
+                            },
+                            legend: {
+                                top: '5%',
+                                left: 'center'
+                            },
+                            series: [
+                                {
+                                    name: '景点等级占比',
+                                    type: 'pie',
+                                    radius: ['40%', '70%'],
+                                    avoidLabelOverlap: false,
+                                    itemStyle: {
+                                        borderRadius: 10,
+                                        borderColor: '#fff',
+                                        borderWidth: 2
+                                    },
+                                    label: {
+                                        show: false,
+                                        position: 'center'
+                                    },
+                                    emphasis: {
+                                        label: {
+                                            show: true,
+                                            fontSize: 40,
+                                            fontWeight: 'bold'
+                                        }
+                                    },
+                                    labelLine: {
+                                        show: false
+                                    },
+                                    data: data
+                                }
+                            ]
+                        };
+                        if (myChart) {
+                            myChart.setOption(option); // 更新图表
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('Error fetching data: ' + textStatus, errorThrown);
+                    }
+                });
+            });
+        });
+    </script>
+
+{% endblock %}
