@@ -20,7 +20,7 @@ from DrissionPage.errors import ElementNotFoundError
 from DrissionPage.common import Settings
 
 Settings.singleton_tab_obj=False
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hive-tourism-recommendation.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hive_tourism_recommendation.settings')
 django.setup()
 from app.models import SightInfo, UserInfo, CommentInfo, AdminInfo  # 注意在setup()之后导入！
 

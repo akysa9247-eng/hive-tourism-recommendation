@@ -5,7 +5,7 @@ import numpy as np
 from decimal import Decimal
 # from sklearn.metrics.pairwise import cosine_similarity
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hive-tourism-recommendation.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hive_tourism_recommendation.settings')
 django.setup()
 from app.models import CommentInfo, UserInfo, SightInfo, AdsSightHeatScoreTop10Stats
 from django.db.models import Count

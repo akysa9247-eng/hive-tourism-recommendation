@@ -3,7 +3,7 @@ import os
 import traceback
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hive-tourism-recommendation.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hive_tourism_recommendation.settings')
 django.setup()
 from app.models import UserInfo, SightInfo,CommentInfo, ProvinceCity
 

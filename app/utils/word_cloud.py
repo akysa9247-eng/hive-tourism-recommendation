@@ -15,13 +15,13 @@ from app.utils import getTime
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 Image.MAX_IMAGE_PIXELS = None
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hive-tourism-recommendation.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hive_tourism_recommendation.settings')
 django.setup()
 from app.models import SpiderCommentInfo, SightInfo, AdminInfo
 
 
 def load_stopwords():
-    stopword_path = '//app/files/stop_word.txt'
+    stopword_path = 'C:/Users/allen/Desktop/旅游景点推荐系统/app/files/stop_word.txt'
     with open(stopword_path, 'r', encoding='utf-8') as f:
         stopwords = set([word.strip() for word in f.readlines()])
     return stopwords
@@ -47,7 +47,7 @@ def word_cloud(top_n, top_n_words, output_path):
     # 保存词云图到指定路径
     plt.savefig(output_path)
 
-def comment_word_cloud(top_n=10, output_path='C:/Users/allen/Desktop/hive-tourism-recommendation/static/wordcloud/commentCloud/comment_cloud.png'):
+def comment_word_cloud(top_n=10, output_path='C:/Users/allen/Desktop/hive_tourism_recommendation/static/wordcloud/commentCloud/comment_cloud.png'):
 
     word_counter = Counter()
     # 加载停用词
@@ -67,7 +67,7 @@ def comment_word_cloud(top_n=10, output_path='C:/Users/allen/Desktop/hive-touris
 
     word_cloud(top_n, top_n_words, output_path)
 
-def sight_intro_word_cloud(top_n=10, output_path='C:/Users/allen/Desktop/hive-tourism-recommendation/static/wordcloud/sightIntroCloud/sight_intro_cloud.png'):
+def sight_intro_word_cloud(top_n=10, output_path='C:/Users/allen/Desktop/hive_tourism_recommendation/static/wordcloud/sightIntroCloud/sight_intro_cloud.png'):
     # 初始化词频计数器
     word_counter = Counter()
 

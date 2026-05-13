@@ -52,7 +52,7 @@ MIDDLEWARE = [
     'middleware.userMiddleWare.UserMiddleWare'
 ]
 
-ROOT_URLCONF = 'project.urls'
+ROOT_URLCONF = 'hive_tourism_recommendation.urls'
 
 TEMPLATES = [
     {
@@ -82,7 +82,7 @@ DATABASES = {
         'NAME': 'travel_db',
         'USER': 'root',
         'PASSWORD': '000000',
-        'HOST': '192.168.10.1',
+        'HOST': 'localhost',
         'PORT': '3306',
 
         'OPTIONS': {

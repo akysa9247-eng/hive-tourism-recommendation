@@ -15,7 +15,7 @@ from app.utils.pagination import Pagination
 import bcrypt
 
 from util.filter import truncate_chinese
-from project import settings
+from hive_tourism_recommendation import settings
 
 
 def register(request):
